@@ -11,7 +11,7 @@ import {
   Navigate,
   useParams,
 } from "react-router-dom";
-import ACTIONS from "../Actions";
+import ACTIONS from "../../../server/Actions";
 
 const EditorPage = () => {
   const editorRef = useRef();

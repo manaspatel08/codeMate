@@ -5,7 +5,8 @@ import "codemirror/theme/dracula.css";
 import "codemirror/mode/javascript/javascript";
 import "codemirror/addon/edit/closetag";
 import "codemirror/addon/edit/closebrackets";
-import ACTIONS from "./Actions"; // ✅ Correct (since it's inside `client/src/`)
+import ACTIONS from "../Actions"; // ✅ Correct path from `components/`
+
 
 
 const Editor = ({ socketRef, roomId, selectedLanguage, onCodeChange }) => {

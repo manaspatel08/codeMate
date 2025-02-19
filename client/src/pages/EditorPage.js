@@ -164,42 +164,45 @@
 
 // export default EditorPage;
 
+import React, { useEffect, useRef } from "react";
+import { Controlled as CodeMirror } from "react-codemirror2";
+import "codemirror/lib/codemirror.css";
+import "codemirror/theme/dracula.css";
+import "codemirror/mode/javascript/javascript";
 
-import React, { useState, useEffect } from "react";
-import { useParams, useNavigate, useLocation } from "react-router-dom";
-import { initSocket } from "../socket";  // ✅ Correct import
-import ACTIONS from "../Actions";
-import Editor from "../components/Editor";
-
-const EditorPage = () => {
-    const { roomId } = useParams();
-    const navigate = useNavigate();
-    const location = useLocation();
-    const [socket, setSocket] = useState(null);
+const Editor = ({ socket, roomId, onCodeChange }) => {
+    const editorRef = useRef(null);
 
     useEffect(() => {
-        const socketInstance = initSocket();  // ✅ Initialize WebSocket
-        setSocket(socketInstance);
-
-        socketInstance.on("connect", () => {
-            console.log("✅ Connected to WebSocket server:", socketInstance.id);
-        });
-
-        socketInstance.on("disconnect", () => {
-            console.log("❌ Disconnected from WebSocket server");
+        if (!socket) return;
+        
+        socket.on("code-change", ({ code }) => {
+            if (editorRef.current) {
+                editorRef.current.setValue(code);
+            }
         });
 
         return () => {
-            socketInstance.disconnect();  // ✅ Proper cleanup
+            socket.off("code-change");
         };
-    }, []);
+    }, [socket]);
 
     return (
-        <div>
-            <h1>Code Collaboration - Room: {roomId}</h1>
-            <Editor socket={socket} roomId={roomId} />
-        </div>
+        <CodeMirror
+            editorDidMount={(editor) => {
+                editorRef.current = editor;  // ✅ Now it’s properly assigned
+            }}
+            onBeforeChange={(editor, data, value) => {
+                onCodeChange(value);
+                socket.emit("code-change", { roomId, code: value });
+            }}
+            options={{
+                mode: "javascript",
+                theme: "dracula",
+                lineNumbers: true,
+            }}
+        />
     );
 };
 
-export default EditorPage;
+export default Editor;

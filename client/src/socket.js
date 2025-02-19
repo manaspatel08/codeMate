@@ -13,10 +13,14 @@
 
 import { io } from "socket.io-client";
 
-const socket = io(process.env.REACT_APP_BACKEND_URL, {
-    transports: ["websocket"],
-    withCredentials: true,
-    secure: true
-});
+// Get backend URL from environment variables
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:5000"; 
 
-export default socket;
+// Initialize Socket.io connection
+export const initSocket = () => {
+    return io(BACKEND_URL, {
+        transports: ["websocket"],
+        withCredentials: true
+    });
+};
+
